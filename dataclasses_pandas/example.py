@@ -52,7 +52,7 @@ class DataClass_Modern(object):
 
 class DataClass_Classic(object):
     '''
-    Classic implementation based imlpementation
+    Classic imlpementation without dataclasses
     '''
 
     def __init__(
