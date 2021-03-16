@@ -29,8 +29,8 @@ class BMDecorate(object):
 
     my_decorator is a specialization of BMDecorate
 
-    In order to add wrapping funtionality for any registered method, BMDecorate should be
-    derived allowing the prologue(), execute() and epilogue() methods to be overriden.
+    In order to add wrapping functionality for any registered method, BMDecorate should be
+    derived allowing the prologue(), execute() and epilogue() methods to be overridden.
     Default versions of these methods perform no action other than to call the decorated method
     on the calling object's instance. The structure of any BMDecorate based decorator has the
     following 3 call phases
@@ -41,7 +41,7 @@ class BMDecorate(object):
 
     Since prologue and epilogue each get the bound method call instance reference, the bound
     object may be operated upon in the wrapper functions. The middle execution phase may
-    be overriden to control the wrapped function call in any way including altering the
+    be overridden to control the wrapped function call in any way including altering the
     calling arguments.
 
  

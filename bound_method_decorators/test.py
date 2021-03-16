@@ -17,7 +17,7 @@ from BMDecorate import BMDecorate
 
 class my_decorator(BMDecorate):
     '''
-    Example specialization of a DMDecorate bound-method decorator where we specialize all call phases
+    Example specialization of a BMDecorate bound-method decorator where we specialize all call phases
     '''
 
     def __init__(self,*args,custom_msg='',**kwargs):
