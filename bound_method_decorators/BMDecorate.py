@@ -30,20 +30,9 @@ class BMDecorate(object):
     my_decorator is a specialization of BMDecorate
 
     In order to add wrapping functionality for any registered method, BMDecorate should be
-    derived allowing the prologue(), execute() and epilogue() methods to be overridden.
-    Default versions of these methods perform no action other than to call the decorated method
-    on the calling object's instance. The structure of any BMDecorate based decorator has the
-    following 3 call phases
-
-    1) prologue is executed (with a bound object reference)
-    2) The wrapped bound-method is executed
-    3) epilogue is executed (with a bound object reference)
-
-    Since prologue and epilogue each get the bound method call instance reference, the bound
-    object may be operated upon in the wrapper functions. The middle execution phase may
-    be overridden to control the wrapped function call in any way including altering the
-    calling arguments.
-
+    derived allowing the exec_wrap() method to be overridden. The base implementation simply
+    calls the wrapped method. Note that the called method object reference is supplied as
+    "instance", so any calling object can be operated upon in the exec_wrap() method
  
     There is a 1:1 mapping of decorated methods and a corresponding BMDecorate object,
     i.e. there is a unique BMDecorate object per client method definition.
@@ -74,64 +63,47 @@ class BMDecorate(object):
         if len(args)==1: # This represents the condition of a parameter-less call
             self._func = args[0]
             self._func_name = args[0].__name__
-            logging.info(f"Decorating function {self._func_name} as parameter-less decorator")
+            logging.debug(f"Decorating function {self._func_name} as parameter-less decorator")
 
     @property
     def func_name(self)->str:
         return self._func_name
 
-    def prologue(self,instance):
-        '''
-        Override this method to perform instance-level decorator operations before the wrapped
-        bound method call is made
-        '''
-        pass
 
-    def execute(self,func,instance,*args,**kwargs):
+    def exec_wrap(self,func,instance,*args,**kwargs):
         '''
         Override this method to control how the registered bound-method call is called, e.g.
         by fixing arguments or otherwise
         '''
         return func(instance,*args,**kwargs)
 
-    def epilogue(self,instance,*args,**kwargs):
-        '''
-        Override this method to perform instance-level decorator operations after the wrapped
-        bound method call is made
-        '''
-        pass
 
     def __get__(self,instance,insttype=None):
-        logging.info(f"\nCalling __get__() on {self} with object instance {instance}")
+        logging.debug(f"\nCalling __get__() on {self} with object instance {instance}")
         self._instance = instance # Used in subsequent __call__ invocation
         return self
 
     def __call__(self,*args,**kwargs):
         # Two cases must be handled here.
-        # 1) In the case where we had decorator parameters (e.g. @BMDecorate(...)), the __call__ method
-        #    is only called once during the decoration process and thus we must return a callable
-        #    so that calls can be made to the callable
-        # 2) In the case where we had no decorator parameters (e.g. @BMDecorate), the __call__ method is
-        #    invoked each time the wrapped function is called in which case this method ends up 
-        #    being a delegate caller (i.e. only returns the return value of the underlying wrapped
-        #    function call).
+        # 1) In the case where we had no decorator parameters (e.g. @BMDecorate). In this case
+        #    the __call__ method is invoked each time the decorated method is called in which case 
+        #    this method ends up essentially being a delegated callable and thus must in turn
+        #    called the previously decorated method
+        # 2) In the case where we had decorator parameters (e.g. @BMDecorate(...)), the __call__ method
+        #    is only called once during the decoration process (i.e. when the client class definition
+        #    is being interpreted) and thus we must return a callable (function object) so that calls
+        #    to the decorated method are effectively calls to this callable
         # Note that in either case, a call to this method is bound to this object, not to the object
-        # which is calling this object, but in the first case below this is only called once to 
+        # which is calling this object, but in the second case below this is only called once to 
         # return a function object which ultimately is bound to the object which calls it
-        if self._func is None: # Case #1 (called only during decoration process)
+        if self._func: # Case #1 (called each time a method call is made)
+            # Here we used the saved self._instance captured in __get__()
+            logging.debug(f"Calling {self._func.__name__} as bound function on object {self._instance}")
+            return self.exec_wrap(self._func,self._instance,*args,**kwargs)
+        else: # Case 2 (called only during decoration process)
             func = args[0]
-            logging.info(f"Decorating {func.__name__} and returning callable back to {func.__name__}")
+            logging.debug(f"Decorating {func.__name__} and returning callable back to {func.__name__}")
             self._func_name = func.__name__
             def wrapped_call(instance,*args,**kwargs):
-                self.prologue(instance)
-                ret_val = self.execute(func,instance,*args,**kwargs)
-                self.epilogue(instance)
-                return ret_val
+                return self.exec_wrap(func,instance,*args,**kwargs)
             return wrapped_call
-        else: # Case 2 (called each time a method call is made)
-            # Here we used the saved self._instance intercepted in __get__()
-            logging.info(f"Calling {self._func.__name__} as bound function on object {self._instance}")
-            self.prologue(self._instance)
-            ret_val = self.execute(self._func,self._instance,*args,**kwargs)
-            self.epilogue(self._instance)
-            return ret_val
