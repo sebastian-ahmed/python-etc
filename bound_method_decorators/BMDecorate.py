@@ -34,6 +34,9 @@ class BMDecorate(object):
     calls the wrapped method. Note that the called method object reference is supplied as
     "instance", so any calling object can be operated upon in the exec_wrap() method
  
+    If a decorator with parameters/arguments is required this base __init__() method must
+    also be overridden to capture the parameters during the decoration phase
+
     There is a 1:1 mapping of decorated methods and a corresponding BMDecorate object,
     i.e. there is a unique BMDecorate object per client method definition.
     
@@ -57,7 +60,18 @@ class BMDecorate(object):
     # phase which allows __call__() in these cases to return the callable at that time which ensures
     # that future calls of the callable reference are always bound to the caller's object reference 
 
-    def __init__(self,*args):
+    def __init__(self,*args,**kwargs):
+        '''
+        This base initializer method can be overridden if a decorator requires arguments.
+        The general template for such an override of this method is as follows:
+
+        def __init__(self,*args,param1=<default1>, param2=<default2>, ... ,**kwargs):
+            super().__init__(*args,**kwargs) # Call this base initializer
+            self._param1 = param1
+            self._param2 = param2
+            ...
+
+        '''
         self._func_name = 'None' # holds function which is wrapped (defined in __call__)
         self._func = None
         if len(args)==1: # This represents the condition of a parameter-less call
@@ -73,7 +87,14 @@ class BMDecorate(object):
     def exec_wrap(self,func,instance,*args,**kwargs):
         '''
         Override this method to control how the registered bound-method call is called, e.g.
-        by fixing arguments or otherwise
+        by fixing arguments or otherwise. The general template for an override of this method
+        is as follows:
+
+        - Perform any prologue code, e.g. modifying/setting arguments passed in
+        - Call this base method (possibly capturing the return value)
+          ret_val = super().exec_wrap(func,instance,*args,**kwargs)
+        - Optionally modify the return value before returning it
+
         '''
         return func(instance,*args,**kwargs)
 
