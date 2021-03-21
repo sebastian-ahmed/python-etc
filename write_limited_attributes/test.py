@@ -21,6 +21,7 @@ class A(object):
 
     # Set a class-level constant attribute with value 42
     attr_const = WriteLimited(0,42)
+    attr_const_no_except = WriteLimited(0,42,dis_except=True) # No exceptions
 
 class B(object):
     '''
@@ -63,6 +64,13 @@ def main():
         a0.attr_const += 1
     except WriteLimitError as e:
         print(f"Got WriteLimitError exception, error details: {e}")
+
+    print("\nAttempt to modify a0.attr_const_no_except (no exception expected")
+    try:
+        a0.attr_const_no_except += 1
+        assert a0.attr_const_no_except == 42, "constant value was modified"
+    except WriteLimitError as e:
+        raise RuntimeError("Got an unexpected WriteLimitError exception")
 
     print("\nAttempt to modify b.attr_ro (post initialization)")
     try:

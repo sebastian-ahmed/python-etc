@@ -35,6 +35,7 @@ class WriteLimited(object):
     initializing argument sets the maximum number of writes allowed to an attribute
 
     Configuration:
+    --------------
     - When wcount_max=0 there are no write allowed, and this attribute behaves as
       a class-level constant (of the client class), such that all objects of the client
       class return const_val
@@ -46,15 +47,18 @@ class WriteLimited(object):
       writes will be permitted
 
     Exceptions (behavior when exceeding the write-limit is attempted):
+    ------------------------------------------------------------------
     When a wcount_max has been reached for a given attribute, any subsequent write
-    will resulting in the WriteLimitError exception being thrown.
+    will resulting in the WriteLimitError exception being thrown. The exception
+    can be disable on a per-descriptor basis by initializing with dis_except=True
 
     '''
 
-    def __init__(self,wcount_max=1,const_val=None):
-        self._wcount_max  = max(-1,wcount_max)
-        self._wcount      = 0
-        self._const_val   = const_val
+    def __init__(self,wcount_max=1,const_val=None,dis_except=False):
+        self._wcount_max     = max(-1,wcount_max)
+        self._wcount         = 0
+        self._const_val      = const_val
+        self._dis_except     = dis_except
 
     def __set_name__(self,owner,name):
         self._name_public  = name
@@ -71,5 +75,6 @@ class WriteLimited(object):
             setattr(instance,self._name_private,value)
             self._wcount += 1
         else:
-            error_msg = f"Maximum writes exceeded to '{self._name_public}' (max-count={self._wcount_max} reached)"
-            raise WriteLimitError(error_msg,instance,self._name_public,self._wcount_max)
+            if not self._dis_except:
+                error_msg = f"Maximum writes exceeded to '{self._name_public}' (max-count={self._wcount_max} reached)"
+                raise WriteLimitError(error_msg,instance,self._name_public,self._wcount_max)
