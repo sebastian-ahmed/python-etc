@@ -48,12 +48,12 @@ class BMDecorate(object):
     # Python descriptor protocol:
     #     When a bound-method call is actually made for an object of a client-class, its unique
     #     BMDecorate descriptor object captures the calling instance reference and stores it in 
-    #     the obj attribute (during the __get__ phase of the call). This is immediately followed
-    #     by calling the __call__ method of the unique BMDecorate object which now not only has
-    #     the previously registered un-bound function object reference (stored in attribute func),
+    #     the _instance attribute (during the __get__ phase of the call). This is immediately followed
+    #     by the interpreter calling the __call__ method of the unique BMDecorate object which now
+    #     not only has the previously registered un-bound function object reference (stored in attribute _func),
     #     but also has the bound method call client object reference allowing it to perform
     #     the bound-method call. Subsequent bound method-calls update the object reference and so
-    #     the obj attribute is very dynamic
+    #     the _instance attribute is very dynamic
     #
     # DMDecorate decorators which are of the parameterized form, do not use the descriptor protocol
     # because their declarations result in a call of the decorator object during the decorating 
