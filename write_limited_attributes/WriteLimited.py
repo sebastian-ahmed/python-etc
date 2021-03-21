@@ -13,11 +13,11 @@ class WriteLimitError(Exception):
     Specialized exception to support WriteLimited class. When an object of this class
     is thrown the following attributes can be inspected:
     name      : name of write limited attribute whose write limit was exceeded
-    count     : max write-count of write limited attribute whose write limit was exceeded
+    limit     : write-count-limit of attribute whose write limit was exceeded
     '''
-    def __init__(self,msg,name='',count=0):
-        self.attribute_name = name
-        self.max_wcount     = count
+    def __init__(self,msg,name='',limit=0):
+        self.attribute_name        = name
+        self.attribute_write_limit = limit
         super().__init__(msg)
 
     def __str__(self):
