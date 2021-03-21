@@ -12,12 +12,10 @@ class WriteLimitError(Exception):
     '''
     Specialized exception to support WriteLimited class. When an object of this class
     is thrown the following attributes can be inspected:
-    obj_ref   : reference to the object whose write limited attribute was exceeded
     name      : name of write limited attribute whose write limit was exceeded
     count     : max write-count of write limited attribute whose write limit was exceeded
     '''
-    def __init__(self,msg,obj_ref=None,name='',count=0):
-        self.obj_ref        = obj_ref
+    def __init__(self,msg,name='',count=0):
         self.attribute_name = name
         self.max_wcount     = count
         super().__init__(msg)
@@ -77,4 +75,4 @@ class WriteLimited(object):
         else:
             if not self._dis_except:
                 error_msg = f"Maximum writes exceeded to '{self._name_public}' (max-count={self._wcount_max} reached)"
-                raise WriteLimitError(error_msg,instance,self._name_public,self._wcount_max)
+                raise WriteLimitError(error_msg,self._name_public,self._wcount_max)
