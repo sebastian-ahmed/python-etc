@@ -53,7 +53,7 @@ class WriteLimited(object):
     '''
 
     def __init__(self,wcount_max=1,const_val=None,dis_except=False):
-        self._wcount_max     = max(-1,wcount_max)
+        self._wcount_max     = max(0,wcount_max)
         self._wcount         = 0
         self._const_val      = const_val
         self._dis_except     = dis_except
