@@ -60,7 +60,7 @@ class WriteLimited(object):
 
     def __set_name__(self,owner,name):
         self._name_public  = name
-        self._name_private = '_WMAX_' + name
+        self._name_private = '_WRITELIMITED_' + name
 
     def __get__(self,instance,inst_type=None):
         if self._wcount_max == 0: # zero-write (constant) case
