@@ -57,7 +57,7 @@ class ExampleUse(object):
     attribute_1 = WriteLimited(0,3.142) # Class-level constant with value 3.142
     attribute_2 = WriteLimited(0,2.718,dis_except=True) # Class-level constant, no exceptions
     attribute_3 = WriteLimited(1) # Initialize-once, read-only after
-    attribute_4 = WriteLimited(2) # Initialine-once, write-once, then read-only
+    attribute_4 = WriteLimited(2) # Initialize-once, write-once, then read-only
     attribute_5 = WriteLimited(11) # Initialize, then write 10 more times, then read-only
 
     def __init__(self):
