@@ -48,6 +48,32 @@ class C(object):
     def __init__(self):
         self.attr_w10 = random.randint(0,99)
 
+class ExampleUse(object):
+    '''
+    Example of a class which uses all the features of WriteLimited attributes
+    '''
+
+    # We assign each attribute with an appropriate class-level descriptor
+    attribute_1 = WriteLimited(0,3.142) # Class-level constant with value 3.142
+    attribute_2 = WriteLimited(0,2.718,dis_except=True) # Class-level constant, no exceptions
+    attribute_3 = WriteLimited(1) # Initialize-once, read-only after
+    attribute_4 = WriteLimited(2) # Initialine-once, write-once, then read-only
+    attribute_5 = WriteLimited(11) # Initialize, then write 10 more times, then read-only
+
+    def __init__(self):
+        self.attribute_3 = 3 # initialize the read-only (by user) attribute
+        self.attribute_4 = 4 # initialize the write-once (by user) attribute
+        self.attribute_5 = 5 # initialize allowing user to write 10 more times
+
+    def __str__(self):
+        ostr = '\nExampleUse object:\n'
+        ostr += f'attribute_1 = {self.attribute_1}\n' 
+        ostr += f'attribute_2 = {self.attribute_2}\n'
+        ostr += f'attribute_3 = {self.attribute_3}\n'
+        ostr += f'attribute_4 = {self.attribute_4}\n'
+        ostr += f'attribute_5 = {self.attribute_5}\n'
+        return ostr
+
 def main():
     a0=A()
     a1=A()
@@ -87,6 +113,12 @@ def main():
             print(f"Wrote random value {c.attr_w10} to c.attr_w10")
     except WriteLimitError as e:
         print(f"Got WriteLimitError exception, error details: {e}")
+
+    # Instantiate the ExampleUse class
+    example = ExampleUse()
+    example.attribute_2 = 100.0 # Should not modify, and not raise exception
+    print(example)
+
 
 if __name__=='__main__':
     main()
