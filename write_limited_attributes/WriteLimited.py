@@ -37,7 +37,7 @@ class WriteLimited(object):
     - When wcount_limit=0 there are no writes allowed (including initialization), and
       this attribute behaves as a class-level constant (of the client class), such
       that all objects of the client class return const_val
-    - For wcount_limit >=1 behaves as expected, where total writes (including those
+    - wcount_limit >=1 behaves as expected, where total writes (including those
       by the client-object __init__ method, are limited to wcount_limit)
     - Creating a client-object-specific read-only attribute which can be initialized
       can be achieved by setting wcount_limit to 1 and initializing the attribute in the 
@@ -85,16 +85,6 @@ class WriteLimited(object):
         ... do something
 
     '''
-
-    # Important implementation details:
-    # For each instance of a client class we create "shadow" attributes which hold the following values:
-    # - A "private" attribute to hold the actual value of the instance-bound attribute
-    # - An attribute to hold the instance-bound write-count associated with the attribute
-    #   - This attribute is created the first time we set an attribute on an instance
-    #   - This attribute is updated each time we either get or set the attribute. By updating this
-    #     during a get, it allows a utility method to get the write-count/read-only state of an
-    #     instance-bound attribute
-
     shadow_prefixes = {
         'private' : '_WL_SHADOW_PRIVATE_',
         'count'   : '_WL_SHADOW_COUNT_',
