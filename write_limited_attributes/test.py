@@ -91,7 +91,7 @@ def main():
     except WriteLimitError as e:
         print(f"Got WriteLimitError exception, error details: {e}")
 
-    print("\nAttempt to modify a0.attr_const_no_except (no exception expected")
+    print("\nAttempt to modify a0.attr_const_no_except (no exception expected)")
     try:
         a0.attr_const_no_except += 1
         assert a0.attr_const_no_except == 42, "constant value was modified"
@@ -119,6 +119,15 @@ def main():
     example.attribute_2 = 100.0 # Should not modify, and not raise exception
     print(example)
 
+    # Use the utility methods on attribute_2
+    print(f"\nattribute_2 write-count={WriteLimited.getattr_wcount(example,'attribute_2')}, is_read-only = {WriteLimited.getattr_ro(example,'attribute_2')}")
+
+    print("\nNow write to example.attribute_5 11 times, which should result in an un-handled exception")
+    # Note: we also use the static utility methods to get the write-count and read-only state for the attribute
+    for k in range(11):
+        example.attribute_5 = k
+        print(f"Wrote {k} to attribute_5",end='')
+        print(f", write-count = {WriteLimited.getattr_wcount(example,'attribute_5')}, is_read-only = {WriteLimited.getattr_ro(example,'attribute_5')}")
 
 if __name__=='__main__':
     main()
