@@ -126,7 +126,7 @@ class WriteLimited(object):
         '''
         return instance.__dict__[WriteLimited.shadow_prefixes['limit']+name]
 
-    def __set_proxies(self,instance,count:int):
+    def __set_shadows(self,instance,count:int):
         setattr(instance,self._name_count,count)
         setattr(instance,self._name_ro,count == self._wcount_limit)
         setattr(instance,self._name_limit,self._wcount_limit)
@@ -153,7 +153,7 @@ class WriteLimited(object):
         # We re-fresh/set shadow values when we read attributes so that the
         # utility functions can do a priming read before returning shadow values
         if self._wcount_limit == 0: # zero-write (constant) case
-            self.__set_proxies(instance,0)
+            self.__set_shadows(instance,0)
             return self._const_val
         else:
             return getattr(instance,self._name_private)
@@ -164,7 +164,7 @@ class WriteLimited(object):
         if self._wcount_limit > 0 and instance_wcount < self._wcount_limit:
             setattr(instance,self._name_private,value)
             instance_wcount += 1
-            self.__set_proxies(instance,instance_wcount)
+            self.__set_shadows(instance,instance_wcount)
         else:
             if not self._dis_except:
                 error_msg = f"Maximum writes exceeded to '{self._name_public}' (max-count={self._wcount_limit} reached)"
