@@ -110,6 +110,7 @@ class WriteLimited(object):
         Returns a boolean reflecting whether the attribute 'name' for the object 'instance'
         is currently read-only
         '''
+        _ = getattr(instance,name) # Priming read for shadows to set/refresh
         return instance.__dict__[WriteLimited.shadow_prefixes['ro']+name]
 
     @staticmethod
@@ -117,6 +118,7 @@ class WriteLimited(object):
         '''
         Returns an int reflecting the current write-count of attribute 'name' for the object 'instance'
         '''
+        _ = getattr(instance,name) # Priming read for shadows to set/refresh
         return instance.__dict__[WriteLimited.shadow_prefixes['count']+name]
 
     @staticmethod
@@ -124,6 +126,7 @@ class WriteLimited(object):
         '''
         Returns an int reflecting the write-count-limit of the attribute 'name' for the object 'instance'
         '''
+        _ = getattr(instance,name) # Priming read for shadows to set/refresh
         return instance.__dict__[WriteLimited.shadow_prefixes['limit']+name]
 
     def __set_shadows(self,instance,count:int):
@@ -156,6 +159,7 @@ class WriteLimited(object):
             self.__set_shadows(instance,0)
             return self._const_val
         else:
+            self.__set_shadows(instance,self.__get_count(instance))
             return getattr(instance,self._name_private)
 
     def __set__(self,instance,value): 
